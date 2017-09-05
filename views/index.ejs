@@ -37,14 +37,14 @@
 <script >
  $(document).ready(function(){
    var userLogged = <%= userLogged %>;
-   console.log(userLogged);
+   
    
    var memory_url = ''+ localStorage.getItem('url') || '';
-   console.log(memory_url);
+   
     if(memory_url != '') {
 
        $.getJSON(memory_url, function(data){
-      console.log(data);
+      
       data.forEach(function(value){
         var buttonAddGoing;
              if(userLogged) {

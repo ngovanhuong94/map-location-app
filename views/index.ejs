@@ -1,0 +1,135 @@
+<!doctype html>
+
+<html>
+<head>
+	<link rel="stylesheet prefetch" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+<link rel="stylesheet prefetch" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" >
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<link rel="stylesheet" type="text/css" href="/style/style.css">
+</head>
+<body>
+
+<div class="container">
+  <div class="text-center">
+   <h1 class="title">Plans tonight?</h1>
+   <span class="icons"><i class="fa fa-coffee" aria-hidden="true"></i>
+   <i class="fa fa-glass" aria-hidden="true"></i></span>
+  </div>
+  <div class="text-center">
+  <div>
+   <button class="btn nearby-cafe">Search Nearby Cafe</button>
+  </div>
+   <div>
+    <button class="btn nearby-bar">Search Nearby Bar </button>
+   </div>
+   <div >
+    <input type='text' id="city" name="city" class="col-xs-6 input-city form-control" placeholder="INPUT CITY FOR SEARCH"/><button class="btn bar-city col-xs-6" id="search-bar-city">Search Bars in City</button>
+   </div>
+   </div>
+  <div class="items">
+ 
+  </div>
+</div>
+
+
+</body>
+<script >
+ $(document).ready(function(){
+   var userLogged = <%= userLogged %>;
+   console.log(userLogged);
+   
+   var memory_url = ''+ localStorage.getItem('url') || '';
+   console.log(memory_url);
+    if(memory_url != '') {
+
+       $.getJSON(memory_url, function(data){
+      console.log(data);
+      data.forEach(function(value){
+        var buttonAddGoing;
+             if(userLogged) {
+              buttonAddGoing = '<a href="/api/addgoing?longitude='+value.longitude+'&latitude='+value.latitude+'"><button class="btn">'+value.countGoing+' going</button></a>'
+             } else {
+              buttonAddGoing = '<a href="/auth/facebook/"><button class="btn">'+value.countGoing+' going</button></a>'
+             }
+               
+             var isGoingUser = value.isGoingUser;
+             var style = "";
+             if(isGoingUser)  style = 'style="color: red;"'
+        $('.items').append('<div class="row item"><div class="col-sm-3"><img src="'+value.photoLink+'" /></div><div class="col-sm-9"><p><h2 '+style+'>'+value.name+'</h2></p><p> address: '+value.vicinity+'</p>'+buttonAddGoing+'</div></div>')
+      })
+     }) 
+
+  }
+
+
+   $('.nearby-cafe,.nearby-bar').click(function(){
+      var keysearch =  $(this).attr('class');
+     $('.items').html('');
+      var type_search,type_callback; 
+      if(keysearch == 'btn nearby-cafe') type_search = 'cafe'; type_callback = 'nearbysearch'
+      if(keysearch == 'btn nearby-bar') type_search = 'bar'; type_callback = 'nearbysearch';
+      
+      console.log(type_search);
+       if(navigator.geolocation){
+    navigator.geolocation.getCurrentPosition(function(pos){
+      var coords = pos.coords;
+      var url = '/api/location?latitude='+coords.latitude+'&longitude='+coords.longitude+'&type_search='+type_search+'&type_callback='+type_callback+'';
+
+       localStorage.setItem('url', url);
+
+     $.getJSON(url, function(data){
+      console.log(data);
+      data.forEach(function(value){
+        var buttonAddGoing;
+             if(userLogged) {
+              buttonAddGoing = '<a href="/api/addgoing?longitude='+value.longitude+'&latitude='+value.latitude+'"><button class="btn">'+value.countGoing+' going</button></a>'
+             } else {
+              buttonAddGoing = '<a href="/auth/facebook/"><button class="btn">'+value.countGoing+' going</button></a>'
+             }
+               
+             var isGoingUser = value.isGoingUser;
+             var style = "";
+             if(isGoingUser)  style = 'style="color: red;"'
+        $('.items').append('<div class="row item"><div class="col-sm-3"><img src="'+value.photoLink+'" /></div><div class="col-sm-9"><p><h2 '+style+'>'+value.name+'</h2></p><p> address: '+value.vicinity+'</p>'+buttonAddGoing+'</div></div>')
+      })
+     }) 
+    })
+  }
+   })
+  
+  $('#search-bar-city').click(function(){
+    $('.items').html('');
+   var city = $('#city').val();
+   if(city == '') alert('city cannot blank');
+   else {
+    var url = '/api/location?city='+city+'&type_callback=textsearch';
+    localStorage.setItem('url', url);
+
+    $.getJSON(url, function(data){
+      console.log(data);
+      data.forEach(function(value){
+        var buttonAddGoing;
+             if(userLogged) {
+              buttonAddGoing = '<a href="/api/addgoing?longitude='+value.longitude+'&latitude='+value.latitude+'"><button class="btn">'+value.countGoing+' going</button></a>'
+             } else {
+              buttonAddGoing = '<a href="/auth/facebook/"><button class="btn">'+value.countGoing+' going</button></a>'
+             }
+               
+             var isGoingUser = value.isGoingUser;
+             var style = "";
+             if(isGoingUser)  style = 'style="color: red;"'
+        $('.items').append('<div class="row item"><div class="col-sm-3"><img src="'+value.photoLink+'" /></div><div class="col-sm-9"><p><h2 '+style+'>'+value.name+'</h2></p><p> address: '+value.vicinity+'</p>'+buttonAddGoing+'</div></div>')
+      })
+     }) 
+
+
+   } 
+   
+
+  })
+  
+ })
+
+</script>
+</html>
